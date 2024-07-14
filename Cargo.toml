@@ -1,0 +1,13 @@
+[package]
+name = "wtui"
+version = "0.1.0"
+authors = ["Valentin271"]
+license = "MIT"
+edition = "2021"
+
+[dependencies]
+chrono = { version = "0.4.38", default-features = false, features = ["clock"] }
+ratatui = "0.27.0"
+
+[profile.release]
+strip = true
