@@ -51,7 +51,7 @@ impl<B: Backend> Tui<B> {
     /// [`rendering`]: crate::ui::render
     pub fn draw(&mut self, app: &mut App) -> AppResult<()> {
         self.terminal
-            .draw(|frame| frame.render_widget(app, frame.size()))?;
+            .draw(|frame| frame.render_widget(app, frame.area()))?;
         Ok(())
     }
 

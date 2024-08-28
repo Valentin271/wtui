@@ -32,7 +32,7 @@ impl App {
 
         for file in files {
             let file = file?;
-            let config = fs::read_to_string(&file.path())?;
+            let config = fs::read_to_string(file.path())?;
             connections.push(Connection::new(
                 file.file_name().to_string_lossy().trim_end_matches(".conf"),
                 WgConfig::from(config.as_str()),
