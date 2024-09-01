@@ -76,16 +76,25 @@ impl App {
         self.state.select(Some(new));
     }
 
+    /// Connects to the selected (hovered) connection
     pub fn connect_selected(&mut self) {
         if let Some(con) = self.connections.get(self.state.selected().unwrap_or(0)) {
             let _ = con.connect();
         }
     }
 
+    /// Disconnects from the selected (hovered) connection
     pub fn disconnect_selected(&mut self) {
         if let Some(con) = self.connections.get(self.state.selected().unwrap_or(0)) {
             let _ = con.disconnect();
         }
+    }
+
+    /// Disconnects all connections.
+    pub fn disconnect_all(&mut self) {
+        self.connections.iter().for_each(|c| {
+            let _ = c.disconnect();
+        });
     }
 
     /// Set running to false to quit the application.

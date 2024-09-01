@@ -22,14 +22,15 @@ network interfaces and routes.
 
 ## Keymap
 
-| Key         | Action     |
-| ----------- | ---------- |
-| `j`, `Down` | Down       |
-| `k`, `Up`   | Up         |
-| `c`         | Connect    |
-| `d`         | Disconnect |
-| `y`\*       | Yank menu  |
-| `?`\*       | Help       |
+| Key         | Action         |
+| ----------- | -------------- |
+| `j`, `Down` | Down           |
+| `k`, `Up`   | Up             |
+| `c`         | Connect        |
+| `d`         | Disconnect     |
+| `D`         | Disconnect all |
+| `y`\*       | Yank menu      |
+| `?`\*       | Help           |
 
 \*: Soon, see TODO section
 
