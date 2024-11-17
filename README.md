@@ -8,10 +8,10 @@ A [WireGuard](https://www.wireguard.com/) client interface.
 - See connection status (connected/disconnected, bytes received/sent)
 - Actions to connect & disconnect
 - List most of configuration (address, MTU, endpoint, allowed IPs, DNS)
+- Copy public key
 
 ## TODO
 
-- [ ] Copy actions (copy pubkey ...)
 - [ ] Available action help popup
 
 # Usage
@@ -22,15 +22,15 @@ network interfaces and routes.
 
 ## Keymap
 
-| Key         | Action         |
-| ----------- | -------------- |
-| `j`, `Down` | Down           |
-| `k`, `Up`   | Up             |
-| `c`         | Connect        |
-| `d`         | Disconnect     |
-| `D`         | Disconnect all |
-| `y`\*       | Yank menu      |
-| `?`\*       | Help           |
+| Key         | Action          |
+| ----------- | --------------- |
+| `j`, `Down` | Down            |
+| `k`, `Up`   | Up              |
+| `c`         | Connect         |
+| `d`         | Disconnect      |
+| `D`         | Disconnect all  |
+| `y`         | Yank public key |
+| `?`\*       | Help            |
 
 \*: Soon, see TODO section
 

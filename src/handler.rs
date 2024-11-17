@@ -18,9 +18,7 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         (_, KeyCode::Char('d')) => app.disconnect_selected(),
         (_, KeyCode::Char('D')) => app.disconnect_all(),
         // Yank
-        (_, KeyCode::Char('y')) => {
-            todo!("Implement yank popup menu")
-        }
+        (_, KeyCode::Char('y')) => app.yank_menu(),
         // Show help
         (_, KeyCode::Char('?')) => {
             todo!("Implement help popup")

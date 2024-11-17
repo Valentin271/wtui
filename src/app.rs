@@ -2,13 +2,17 @@ use std::error;
 use std::fs;
 
 use block::Title;
+use clipboard::ClipboardContext;
+use clipboard::ClipboardProvider;
 use connection::Connection;
 use ratatui::prelude::*;
 use ratatui::widgets::*;
+use state::State;
 
 use crate::wg::WgConfig;
 
 mod connection;
+mod state;
 
 /// Application result type.
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
@@ -18,7 +22,8 @@ pub struct App {
     /// Is the application running?
     pub running: bool,
     connections: Vec<Connection>,
-    state: TableState,
+    table_state: TableState,
+    state: State,
 }
 
 impl App {
@@ -42,7 +47,8 @@ impl App {
         Ok(Self {
             running: true,
             connections,
-            state: TableState::default().with_selected(0),
+            table_state: TableState::default().with_selected(0),
+            state: State::Main,
         })
     }
 
@@ -55,37 +61,42 @@ impl App {
 
     /// Select the next element in the app
     pub fn down(&mut self) {
-        let mut new = self.state.selected().unwrap_or(0) + 1;
+        let mut new = self.table_state.selected().unwrap_or(0) + 1;
 
         if new >= self.connections.len() {
             new = 0;
         }
 
-        self.state.select(Some(new));
+        self.table_state.select(Some(new));
     }
 
     /// Select the previous element in the app
     pub fn up(&mut self) {
         let new = self
-            .state
+            .table_state
             .selected()
             .unwrap_or(0)
             .checked_sub(1)
             .unwrap_or(self.connections.len() - 1);
 
-        self.state.select(Some(new));
+        self.table_state.select(Some(new));
+    }
+
+    pub fn selected(&self) -> Option<&Connection> {
+        self.connections
+            .get(self.table_state.selected().unwrap_or(0))
     }
 
     /// Connects to the selected (hovered) connection
     pub fn connect_selected(&mut self) {
-        if let Some(con) = self.connections.get(self.state.selected().unwrap_or(0)) {
+        if let Some(con) = self.selected() {
             let _ = con.connect();
         }
     }
 
     /// Disconnects from the selected (hovered) connection
     pub fn disconnect_selected(&mut self) {
-        if let Some(con) = self.connections.get(self.state.selected().unwrap_or(0)) {
+        if let Some(con) = self.selected() {
             let _ = con.disconnect();
         }
     }
@@ -95,6 +106,18 @@ impl App {
         self.connections.iter().for_each(|c| {
             let _ = c.disconnect();
         });
+    }
+
+    /// Enable the yank (copy) menu
+    pub fn yank_menu(&mut self) {
+        self.state = State::Yank;
+
+        if let Some(con) = self.selected() {
+            let pubkey = con.pubkey();
+
+            let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+            ctx.set_contents(pubkey.to_string()).unwrap();
+        }
     }
 
     /// Set running to false to quit the application.
@@ -124,7 +147,7 @@ impl Widget for &mut App {
                     "Endpoint",
                     "Allowed IPs",
                     "Latest ",
-                    "Public key",
+                    "Public Key",
                     "DNS",
                 ])
                 .bold()
@@ -146,6 +169,6 @@ impl Widget for &mut App {
             .highlight_style(Style::new().reversed())
             .highlight_symbol(">> ");
 
-        StatefulWidget::render(list, area, buf, &mut self.state);
+        StatefulWidget::render(list, area, buf, &mut self.table_state);
     }
 }

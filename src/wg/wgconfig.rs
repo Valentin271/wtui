@@ -1,4 +1,4 @@
-use std::{net::IpAddr};
+use std::net::IpAddr;
 
 use super::{Interface, Peer};
 
@@ -54,9 +54,7 @@ impl From<&str> for WgConfig {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        net::{IpAddr, Ipv4Addr},
-    };
+    use std::net::{IpAddr, Ipv4Addr};
 
     use crate::wg::types::{
         key::{Private, Public},

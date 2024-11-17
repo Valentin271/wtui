@@ -1,6 +1,7 @@
 use std::{
     io::{self, Write},
     marker::PhantomData,
+    ops::Deref,
     process::{Command, Stdio},
 };
 
@@ -42,6 +43,14 @@ impl Key<Private> {
         String::from_utf8(output.stdout)
             .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
             .map(Key::from)
+    }
+}
+
+impl<T: KeyType> Deref for Key<T> {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 

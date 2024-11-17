@@ -6,7 +6,10 @@ use std::{
 
 use ratatui::{prelude::*, style::Styled, widgets::Row};
 
-use crate::wg::{ConnectionStatus, WgConfig};
+use crate::wg::{
+    types::{key::Public, Key},
+    ConnectionStatus, WgConfig,
+};
 
 pub struct Connection {
     /// Config file name.
@@ -63,6 +66,10 @@ impl Connection {
             .stderr(Stdio::null())
             .spawn()
             .map(|_| ())
+    }
+
+    pub fn pubkey(&self) -> &Key<Public> {
+        self.config.interface.pubkey()
     }
 }
 
