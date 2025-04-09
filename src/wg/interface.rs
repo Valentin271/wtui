@@ -1,8 +1,8 @@
 use std::net::IpAddr;
 
 use super::types::{
-    key::{Private, Public},
     Key,
+    key::{Private, Public},
 };
 
 /// The interface section of a wireguard configuration.

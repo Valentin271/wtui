@@ -1,5 +1,5 @@
-use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
+use ratatui::backend::CrosstermBackend;
 use std::io;
 use wtui::app::{App, AppResult};
 use wtui::event::{Event, EventHandler};

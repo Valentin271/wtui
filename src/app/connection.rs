@@ -7,8 +7,8 @@ use std::{
 use ratatui::{prelude::*, style::Styled, widgets::Row};
 
 use crate::wg::{
-    types::{key::Public, Key},
     ConnectionStatus, WgConfig,
+    types::{Key, key::Public},
 };
 
 pub struct Connection {
@@ -73,7 +73,7 @@ impl Connection {
     }
 }
 
-impl<'a> From<&Connection> for Row<'a> {
+impl From<&Connection> for Row<'_> {
     fn from(con: &Connection) -> Self {
         let row_height = con
             .config

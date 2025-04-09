@@ -57,8 +57,8 @@ mod tests {
     use std::net::{IpAddr, Ipv4Addr};
 
     use crate::wg::types::{
-        key::{Private, Public},
         Key,
+        key::{Private, Public},
     };
 
     use super::*;

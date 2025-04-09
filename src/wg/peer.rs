@@ -1,4 +1,4 @@
-use super::types::{key::Public, Key};
+use super::types::{Key, key::Public};
 
 pub struct Peer {
     pubkey: Key<Public>,
