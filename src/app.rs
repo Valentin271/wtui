@@ -133,7 +133,8 @@ impl Widget for &mut App {
     {
         let border = Block::bordered()
             .border_type(BorderType::Rounded)
-            .title(Title::from(" Connections ").alignment(Alignment::Center));
+            .title(Title::from(" Connections "))
+            .title_alignment(Alignment::Center);
 
         let list = Table::default()
             .rows(self.connections.iter().map(Row::from))
@@ -166,7 +167,7 @@ impl Widget for &mut App {
                 Constraint::Fill(1),
             ])
             .block(border)
-            .highlight_style(Style::new().reversed())
+            .row_highlight_style(Style::new().reversed())
             .highlight_symbol(">> ");
 
         StatefulWidget::render(list, area, buf, &mut self.table_state);

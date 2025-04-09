@@ -8,7 +8,7 @@ edition = "2024"
 [dependencies]
 chrono = { version = "0.4.38", default-features = false, features = ["clock"] }
 clipboard = "0.5.0"
-ratatui = "0.28.1"
+ratatui = "0.29.0"
 
 [profile.release]
 strip = true
