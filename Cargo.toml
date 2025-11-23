@@ -9,6 +9,7 @@ edition = "2024"
 chrono = { version = "0.4.38", default-features = false, features = ["clock"] }
 clipboard = "0.5.0"
 ratatui = "0.29.0"
+resolv-conf = "0.7.6"
 
 [profile.release]
 strip = true

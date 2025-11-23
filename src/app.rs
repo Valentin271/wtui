@@ -24,6 +24,7 @@ pub struct App {
     connections: Vec<Connection>,
     table_state: TableState,
     state: State,
+    nameservers: Vec<String>,
 }
 
 impl App {
@@ -44,11 +45,18 @@ impl App {
             ))
         }
 
+        let resolv_content =
+            fs::read_to_string("/etc/resolv.conf").expect("Failed to open resolv.conf");
+        let resolv_config = resolv_conf::Config::parse(&resolv_content);
+
         Ok(Self {
             running: true,
             connections,
             table_state: TableState::default().with_selected(0),
             state: State::Main,
+            nameservers: resolv_config
+                .map(|c| c.nameservers.iter().map(|s| s.to_string()).collect())
+                .unwrap_or(vec!["Unable to parse nameserver".to_string()]),
         })
     }
 
@@ -134,7 +142,11 @@ impl Widget for &mut App {
         let border = Block::bordered()
             .border_type(BorderType::Rounded)
             .title(Title::from(" Connections "))
-            .title_alignment(Alignment::Center);
+            .title_alignment(Alignment::Center)
+            .title_bottom(
+                Line::from(format!(" Nameservers: {} ", self.nameservers.join(", ")))
+                    .alignment(Alignment::Left),
+            );
 
         let list = Table::default()
             .rows(self.connections.iter().map(Row::from))
