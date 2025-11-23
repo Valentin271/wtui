@@ -42,7 +42,8 @@ impl App {
             connections.push(Connection::new(
                 file.file_name().to_string_lossy().trim_end_matches(".conf"),
                 WgConfig::from(config.as_str()),
-            ))
+            ));
+            connections.sort();
         }
 
         let resolv_content =
