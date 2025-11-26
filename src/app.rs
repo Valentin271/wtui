@@ -140,6 +140,11 @@ impl App {
         }
     }
 
+    // Switch to search mode
+    pub fn search(&mut self) {
+        self.mode = Mode::Search;
+    }
+
     /// Set running to false to quit the application.
     pub fn quit(&mut self) {
         self.running = false;
@@ -151,14 +156,19 @@ impl Widget for &mut App {
     where
         Self: Sized,
     {
-        let border = Block::bordered()
+        let mut border = Block::bordered()
             .border_type(BorderType::Rounded)
             .title(Title::from(" Connections "))
             .title_alignment(Alignment::Center)
-            .title_bottom(
+            .title_top(
                 Line::from(format!(" Nameservers: {} ", self.nameservers.join(", ")))
-                    .alignment(Alignment::Left),
+                    .alignment(Alignment::Left)
+                    .italic(),
             );
+
+        if self.mode == Mode::Search {
+            border = border.title_bottom(Line::from("/").alignment(Alignment::Left));
+        }
 
         let list = Table::default()
             .rows(self.connections.iter().map(Row::from))
