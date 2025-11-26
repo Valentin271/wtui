@@ -1,5 +1,5 @@
 #[derive(Default)]
-pub enum State {
+pub enum Mode {
     #[default]
     Main,
     Yank,

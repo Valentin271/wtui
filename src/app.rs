@@ -5,14 +5,14 @@ use block::Title;
 use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
 use connection::Connection;
+use mode::Mode;
 use ratatui::prelude::*;
 use ratatui::widgets::*;
-use state::State;
 
 use crate::wg::WgConfig;
 
 mod connection;
-mod state;
+mod mode;
 
 /// Application result type.
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
@@ -23,7 +23,7 @@ pub struct App {
     pub running: bool,
     connections: Vec<Connection>,
     table_state: TableState,
-    state: State,
+    mode: Mode,
     nameservers: Vec<String>,
 }
 
@@ -50,7 +50,7 @@ impl App {
             running: true,
             connections,
             table_state: TableState::default().with_selected(0),
-            state: State::Main,
+            mode: Mode::Main,
             nameservers: vec![],
         };
         app.update_nameserver();
@@ -130,7 +130,7 @@ impl App {
 
     /// Enable the yank (copy) menu
     pub fn yank_menu(&mut self) {
-        self.state = State::Yank;
+        self.mode = Mode::Yank;
 
         if let Some(con) = self.selected() {
             let pubkey = con.pubkey();
