@@ -46,19 +46,15 @@ impl App {
             connections.sort();
         }
 
-        let resolv_content =
-            fs::read_to_string("/etc/resolv.conf").expect("Failed to open resolv.conf");
-        let resolv_config = resolv_conf::Config::parse(&resolv_content);
-
-        Ok(Self {
+        let mut app = Self {
             running: true,
             connections,
             table_state: TableState::default().with_selected(0),
             state: State::Main,
-            nameservers: resolv_config
-                .map(|c| c.nameservers.iter().map(|s| s.to_string()).collect())
-                .unwrap_or(vec!["Unable to parse nameserver".to_string()]),
-        })
+            nameservers: vec![],
+        };
+        app.update_nameserver();
+        Ok(app)
     }
 
     /// Handles the tick event of the terminal.
@@ -96,11 +92,24 @@ impl App {
             .get(self.table_state.selected().unwrap_or(0))
     }
 
+    /// Update the cached nameserver.
+    ///
+    /// Useful before or after changing a connection.
+    fn update_nameserver(&mut self) {
+        let resolv_content =
+            fs::read_to_string("/etc/resolv.conf").expect("Failed to open resolv.conf");
+        let resolv_config = resolv_conf::Config::parse(&resolv_content);
+        self.nameservers = resolv_config
+            .map(|c| c.nameservers.iter().map(|s| s.to_string()).collect())
+            .unwrap_or(vec!["Unable to parse nameserver".to_string()])
+    }
+
     /// Connects to the selected (hovered) connection
     pub fn connect_selected(&mut self) {
         if let Some(con) = self.selected() {
             let _ = con.connect();
         }
+        self.update_nameserver();
     }
 
     /// Disconnects from the selected (hovered) connection
@@ -108,6 +117,7 @@ impl App {
         if let Some(con) = self.selected() {
             let _ = con.disconnect();
         }
+        self.update_nameserver();
     }
 
     /// Disconnects all connections.
@@ -115,6 +125,7 @@ impl App {
         self.connections.iter().for_each(|c| {
             let _ = c.disconnect();
         });
+        self.update_nameserver();
     }
 
     /// Enable the yank (copy) menu
