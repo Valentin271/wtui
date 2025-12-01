@@ -106,10 +106,11 @@ impl From<&Connection> for Row<'_> {
             ),
         ])
         .height(row_height)
-        .set_style(if !con.status.is_connected() {
-            Style::new().add_modifier(Modifier::DIM)
-        } else {
-            Style::new().green()
+        .set_style(match con.status.bytes_received() {
+            Some(b) if **b > 0 => Style::new().green(),
+            Some(b) if **b == 0 => Style::new().yellow(),
+            None => Style::new().add_modifier(Modifier::DIM),
+            Some(_) => unreachable!("Some arms already cover every cases"),
         })
     }
 }
