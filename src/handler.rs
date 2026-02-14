@@ -41,7 +41,11 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
 fn handle_key_search(key_event: KeyEvent, app: &mut App) {
     match (key_event.modifiers, key_event.code) {
         // Exit search mode
-        (_, KeyCode::Esc | KeyCode::Enter) | (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
+        (_, KeyCode::Esc) | (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
+            app.set_search("");
+            app.set_focus(Focus::Main);
+        }
+        (_, KeyCode::Enter) => {
             app.set_focus(Focus::Main);
         }
         // Down
