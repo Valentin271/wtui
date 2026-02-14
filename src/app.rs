@@ -92,6 +92,10 @@ impl App {
         &self.focus
     }
 
+    pub fn set_focus(&mut self, focus: Focus) {
+        self.focus = focus;
+    }
+
     pub fn selected(&self) -> Option<&Connection> {
         self.connections
             .get(self.table_state.selected().unwrap_or(0))
@@ -146,13 +150,8 @@ impl App {
     }
 
     // Switch to search mode
-    pub fn search(&mut self, search: Option<&str>) {
-        if let Some(term) = search {
-            self.focus = Focus::Search;
-            self.search_term = term.to_owned();
-        } else {
-            self.focus = Focus::Main;
-        }
+    pub fn search(&mut self, search: &str) {
+        self.search_term = search.to_owned();
     }
 
     /// Set running to false to quit the application.
@@ -185,7 +184,11 @@ impl Widget for &mut App {
                 Line::from(format!(
                     "/{}{}",
                     self.search_term,
-                    if self.focus == Focus::Search { "█" } else { "" }
+                    if self.focus == Focus::Search {
+                        "█"
+                    } else {
+                        ""
+                    }
                 ))
                 .alignment(Alignment::Left),
             );
