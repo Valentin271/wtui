@@ -4,14 +4,14 @@ use std::fs;
 use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
 use connection::Connection;
+use focus::Focus;
 use ratatui::prelude::*;
 use ratatui::widgets::*;
-use state::State;
 
 use crate::wg::WgConfig;
 
 mod connection;
-mod state;
+pub mod focus;
 
 /// Application result type.
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
@@ -22,7 +22,8 @@ pub struct App {
     pub running: bool,
     connections: Vec<Connection>,
     table_state: TableState,
-    state: State,
+    focus: Focus,
+    search: String,
     nameservers: Vec<String>,
 }
 
@@ -49,7 +50,8 @@ impl App {
             running: true,
             connections,
             table_state: TableState::default().with_selected(0),
-            state: State::Main,
+            focus: Focus::Main,
+            search: String::new(),
             nameservers: vec![],
         };
         app.update_nameserver();
@@ -84,6 +86,24 @@ impl App {
             .unwrap_or(self.connections.len() - 1);
 
         self.table_state.select(Some(new));
+    }
+
+    pub fn focus(&self) -> &Focus {
+        &self.focus
+    }
+
+    pub fn set_focus(&mut self, focus: Focus) {
+        self.focus = focus;
+    }
+
+    /// Get the current search term
+    pub fn search(&self) -> &str {
+        &self.search
+    }
+
+    /// Set the search term
+    pub fn set_search(&mut self, search: &str) {
+        self.search = search.to_owned();
     }
 
     pub fn selected(&self) -> Option<&Connection> {
@@ -129,7 +149,7 @@ impl App {
 
     /// Enable the yank (copy) menu
     pub fn yank_menu(&mut self) {
-        self.state = State::Yank;
+        self.focus = Focus::Yank;
 
         if let Some(con) = self.selected() {
             let pubkey = con.pubkey();
@@ -150,17 +170,38 @@ impl Widget for &mut App {
     where
         Self: Sized,
     {
-        let border = Block::bordered()
+        let mut border = Block::bordered()
             .border_type(BorderType::Rounded)
             .title(Line::from(" Connections "))
             .title_alignment(Alignment::Center)
-            .title_bottom(
+            .title_top(
                 Line::from(format!(" Nameservers: {} ", self.nameservers.join(", ")))
-                    .alignment(Alignment::Left),
+                    .alignment(Alignment::Left)
+                    .italic(),
             );
 
+        if self.focus == Focus::Search || !self.search.is_empty() {
+            border = border.title_bottom(
+                Line::from(format!(
+                    "/{}{}",
+                    self.search,
+                    if self.focus == Focus::Search {
+                        "█"
+                    } else {
+                        ""
+                    }
+                ))
+                .alignment(Alignment::Left),
+            );
+        }
+
         let list = Table::default()
-            .rows(self.connections.iter().map(Row::from))
+            .rows(
+                self.connections
+                    .iter()
+                    .filter(|con| con.contains(&self.search))
+                    .map(Row::from),
+            )
             .header(
                 Row::new([
                     "Name",

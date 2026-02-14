@@ -1,8 +1,13 @@
-use crate::app::{App, AppResult};
+use crate::app::{App, AppResult, focus::Focus};
 use ratatui::crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 /// Handles the key events and updates the state of [`App`].
 pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
+    if let Focus::Search = app.focus() {
+        handle_key_search(key_event, app);
+        return Ok(());
+    }
+
     match (key_event.modifiers, key_event.code) {
         // Exit application on `ESC`, `q` or 'Ctrl-C'
         (_, KeyCode::Esc | KeyCode::Char('q')) | (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
@@ -19,6 +24,10 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         (_, KeyCode::Char('D')) => app.disconnect_all(),
         // Yank
         (_, KeyCode::Char('y')) => app.yank_menu(),
+        // Search
+        (_, KeyCode::Char('/')) => {
+            app.set_focus(Focus::Search);
+        }
         // Show help
         (_, KeyCode::Char('?')) => {
             todo!("Implement help popup")
@@ -27,4 +36,39 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         _ => {}
     }
     Ok(())
+}
+
+fn handle_key_search(key_event: KeyEvent, app: &mut App) {
+    match (key_event.modifiers, key_event.code) {
+        // Exit search mode
+        (_, KeyCode::Esc) | (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
+            app.set_search("");
+            app.set_focus(Focus::Main);
+        }
+        (_, KeyCode::Enter) => {
+            app.set_focus(Focus::Main);
+        }
+        // Down
+        (KeyModifiers::CONTROL, KeyCode::Char('j')) | (_, KeyCode::Down) => app.down(),
+        // Up
+        (KeyModifiers::CONTROL, KeyCode::Char('k')) | (_, KeyCode::Up) => app.up(),
+        // Delete
+        (_, KeyCode::Backspace) => {
+            let mut current_search = app.search().to_owned();
+            if current_search.is_empty() {
+                app.set_focus(Focus::Main);
+            } else {
+                current_search.pop();
+                app.set_search(&current_search)
+            }
+        }
+        // Search char
+        (_, KeyCode::Char(c)) => {
+            let mut term = app.search().to_owned();
+            term.push(c);
+            app.set_search(&term);
+        }
+        // Ignore rest
+        _ => {}
+    }
 }
