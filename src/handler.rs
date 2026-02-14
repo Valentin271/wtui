@@ -26,8 +26,6 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         (_, KeyCode::Char('y')) => app.yank_menu(),
         // Search
         (_, KeyCode::Char('/')) => {
-            let current_search = app.search_term().to_owned();
-            app.search(&current_search);
             app.set_focus(Focus::Search);
         }
         // Show help
@@ -52,19 +50,19 @@ fn handle_key_search(key_event: KeyEvent, app: &mut App) {
         (KeyModifiers::CONTROL, KeyCode::Char('k')) | (_, KeyCode::Up) => app.up(),
         // Delete
         (_, KeyCode::Backspace) => {
-            let mut current_term = app.search_term().to_owned();
-            if current_term.is_empty() {
+            let mut current_search = app.search().to_owned();
+            if current_search.is_empty() {
                 app.set_focus(Focus::Main);
             } else {
-                current_term.pop();
-                app.search(&current_term)
+                current_search.pop();
+                app.set_search(&current_search)
             }
         }
         // Search char
         (_, KeyCode::Char(c)) => {
-            let mut term = app.search_term().to_owned();
+            let mut term = app.search().to_owned();
             term.push(c);
-            app.search(&term);
+            app.set_search(&term);
         }
         // Ignore rest
         _ => {}

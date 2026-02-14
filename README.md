@@ -9,6 +9,7 @@ A [WireGuard](https://www.wireguard.com/) client interface.
 - Actions to connect & disconnect
 - List most of configuration (address, MTU, endpoint, allowed IPs, DNS)
 - Copy public key
+- Search for connection
 
 ## TODO
 
@@ -32,6 +33,7 @@ See [Installation](#Installation) for simplified root usage.
 | `d`         | Disconnect      |
 | `D`         | Disconnect all  |
 | `y`         | Yank public key |
+| `/`         | Search          |
 | `?`\*       | Help            |
 
 \*: Soon, see TODO section

@@ -23,7 +23,7 @@ pub struct App {
     connections: Vec<Connection>,
     table_state: TableState,
     focus: Focus,
-    search_term: String,
+    search: String,
     nameservers: Vec<String>,
 }
 
@@ -51,7 +51,7 @@ impl App {
             connections,
             table_state: TableState::default().with_selected(0),
             focus: Focus::Main,
-            search_term: String::new(),
+            search: String::new(),
             nameservers: vec![],
         };
         app.update_nameserver();
@@ -94,6 +94,16 @@ impl App {
 
     pub fn set_focus(&mut self, focus: Focus) {
         self.focus = focus;
+    }
+
+    /// Get the current search term
+    pub fn search(&self) -> &str {
+        &self.search
+    }
+
+    /// Set the search term
+    pub fn set_search(&mut self, search: &str) {
+        self.search = search.to_owned();
     }
 
     pub fn selected(&self) -> Option<&Connection> {
@@ -149,18 +159,9 @@ impl App {
         }
     }
 
-    // Switch to search mode
-    pub fn search(&mut self, search: &str) {
-        self.search_term = search.to_owned();
-    }
-
     /// Set running to false to quit the application.
     pub fn quit(&mut self) {
         self.running = false;
-    }
-
-    pub fn search_term(&self) -> &str {
-        &self.search_term
     }
 }
 
@@ -179,11 +180,11 @@ impl Widget for &mut App {
                     .italic(),
             );
 
-        if self.focus == Focus::Search || !self.search_term.is_empty() {
+        if self.focus == Focus::Search || !self.search.is_empty() {
             border = border.title_bottom(
                 Line::from(format!(
                     "/{}{}",
-                    self.search_term,
+                    self.search,
                     if self.focus == Focus::Search {
                         "█"
                     } else {
@@ -198,7 +199,7 @@ impl Widget for &mut App {
             .rows(
                 self.connections
                     .iter()
-                    .filter(|con| con.contains(&self.search_term))
+                    .filter(|con| con.contains(&self.search))
                     .map(Row::from),
             )
             .header(
