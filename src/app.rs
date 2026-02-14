@@ -195,7 +195,12 @@ impl Widget for &mut App {
         }
 
         let list = Table::default()
-            .rows(self.connections.iter().map(Row::from))
+            .rows(
+                self.connections
+                    .iter()
+                    .filter(|con| con.contains(&self.search_term))
+                    .map(Row::from),
+            )
             .header(
                 Row::new([
                     "Name",

@@ -71,6 +71,11 @@ impl Connection {
     pub fn pubkey(&self) -> &Key<Public> {
         self.config.interface.pubkey()
     }
+
+    /// Check if the connection name contains the given string
+    pub fn contains(&self, term: &str) -> bool {
+        self.name.contains(term)
+    }
 }
 
 impl From<&Connection> for Row<'_> {
