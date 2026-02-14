@@ -2,6 +2,6 @@
 pub enum Mode {
     #[default]
     Main,
-    Search,
+    Search(String),
     Yank,
 }

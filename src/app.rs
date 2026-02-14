@@ -11,7 +11,7 @@ use ratatui::widgets::*;
 use crate::wg::WgConfig;
 
 mod connection;
-mod mode;
+pub mod mode;
 
 /// Application result type.
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
@@ -86,6 +86,10 @@ impl App {
         self.table_state.select(Some(new));
     }
 
+    pub fn mode(&self) -> &Mode {
+        &self.mode
+    }
+
     pub fn selected(&self) -> Option<&Connection> {
         self.connections
             .get(self.table_state.selected().unwrap_or(0))
@@ -140,8 +144,8 @@ impl App {
     }
 
     // Switch to search mode
-    pub fn search(&mut self) {
-        self.mode = Mode::Search;
+    pub fn search(&mut self, term: &str) {
+        self.mode = Mode::Search(term.to_owned());
     }
 
     /// Set running to false to quit the application.
@@ -165,8 +169,9 @@ impl Widget for &mut App {
                     .italic(),
             );
 
-        if self.mode == Mode::Search {
-            border = border.title_bottom(Line::from("/").alignment(Alignment::Left));
+        if let Mode::Search(term) = &self.mode {
+            border =
+                border.title_bottom(Line::from(format!("/{}", term)).alignment(Alignment::Left));
         }
 
         let list = Table::default()
