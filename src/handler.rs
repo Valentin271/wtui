@@ -3,8 +3,9 @@ use ratatui::crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 /// Handles the key events and updates the state of [`App`].
 pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
-    if let Mode::Search(term) = app.mode() {
-        handle_key_search(key_event, term.to_owned(), app);
+    if let Mode::Search = app.mode() {
+        handle_key_search(key_event, app);
+        return Ok(());
     }
 
     match (key_event.modifiers, key_event.code) {
@@ -24,7 +25,10 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         // Yank
         (_, KeyCode::Char('y')) => app.yank_menu(),
         // Search
-        (_, KeyCode::Char('/')) => app.search(""),
+        (_, KeyCode::Char('/')) => {
+            let current_search = app.search_term().to_owned();
+            app.search(Some(&current_search));
+        }
         // Show help
         (_, KeyCode::Char('?')) => {
             todo!("Implement help popup")
@@ -35,16 +39,31 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
     Ok(())
 }
 
-fn handle_key_search(key_event: KeyEvent, mut term: String, app: &mut App) {
-    match key_event.code {
-        KeyCode::Backspace => {
-            term.pop();
-            if term.is_empty() {
-                // TODO: stop search
-                // app.search(term);
+fn handle_key_search(key_event: KeyEvent, app: &mut App) {
+    match (key_event.modifiers, key_event.code) {
+        // Exit search mode
+        (_, KeyCode::Esc | KeyCode::Enter) | (KeyModifiers::CONTROL, KeyCode::Char('c')) => app.search(None),
+        // Down
+        (KeyModifiers::CONTROL, KeyCode::Char('j')) | (_, KeyCode::Down) => app.down(),
+        // Up
+        (KeyModifiers::CONTROL, KeyCode::Char('k')) | (_, KeyCode::Up) => app.up(),
+        // Delete
+        (_, KeyCode::Backspace) => {
+            let mut current_term = app.search_term().to_owned();
+            if current_term.is_empty() {
+                app.search(None);
+            } else {
+                current_term.pop();
+                app.search(Some(&current_term))
             }
-            app.search(&term)
         }
-        code => app.search(&(term + &code.to_string())),
+        // Search char
+        (_, KeyCode::Char(c)) => {
+            let mut term = app.search_term().to_owned();
+            term.push(c);
+            app.search(Some(&term));
+        }
+        // Ignore rest
+        _ => {}
     }
 }

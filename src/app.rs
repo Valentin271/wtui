@@ -23,6 +23,7 @@ pub struct App {
     connections: Vec<Connection>,
     table_state: TableState,
     mode: Mode,
+    search_term: String,
     nameservers: Vec<String>,
 }
 
@@ -50,6 +51,7 @@ impl App {
             connections,
             table_state: TableState::default().with_selected(0),
             mode: Mode::Main,
+            search_term: String::new(),
             nameservers: vec![],
         };
         app.update_nameserver();
@@ -144,13 +146,22 @@ impl App {
     }
 
     // Switch to search mode
-    pub fn search(&mut self, term: &str) {
-        self.mode = Mode::Search(term.to_owned());
+    pub fn search(&mut self, search: Option<&str>) {
+        if let Some(term) = search {
+            self.mode = Mode::Search;
+            self.search_term = term.to_owned();
+        } else {
+            self.mode = Mode::Main;
+        }
     }
 
     /// Set running to false to quit the application.
     pub fn quit(&mut self) {
         self.running = false;
+    }
+
+    pub fn search_term(&self) -> &str {
+        &self.search_term
     }
 }
 
@@ -169,9 +180,15 @@ impl Widget for &mut App {
                     .italic(),
             );
 
-        if let Mode::Search(term) = &self.mode {
-            border =
-                border.title_bottom(Line::from(format!("/{}", term)).alignment(Alignment::Left));
+        if self.mode == Mode::Search || !self.search_term.is_empty() {
+            border = border.title_bottom(
+                Line::from(format!(
+                    "/{}{}",
+                    self.search_term,
+                    if self.mode == Mode::Search { "█" } else { "" }
+                ))
+                .alignment(Alignment::Left),
+            );
         }
 
         let list = Table::default()
