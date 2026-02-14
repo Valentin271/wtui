@@ -1,7 +1,6 @@
 use std::error;
 use std::fs;
 
-use block::Title;
 use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
 use connection::Connection;
@@ -153,7 +152,7 @@ impl Widget for &mut App {
     {
         let border = Block::bordered()
             .border_type(BorderType::Rounded)
-            .title(Title::from(" Connections "))
+            .title(Line::from(" Connections "))
             .title_alignment(Alignment::Center)
             .title_bottom(
                 Line::from(format!(" Nameservers: {} ", self.nameservers.join(", ")))
