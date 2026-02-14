@@ -4,14 +4,14 @@ use std::fs;
 use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
 use connection::Connection;
-use mode::Mode;
+use focus::Focus;
 use ratatui::prelude::*;
 use ratatui::widgets::*;
 
 use crate::wg::WgConfig;
 
 mod connection;
-pub mod mode;
+pub mod focus;
 
 /// Application result type.
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
@@ -22,7 +22,7 @@ pub struct App {
     pub running: bool,
     connections: Vec<Connection>,
     table_state: TableState,
-    mode: Mode,
+    focus: Focus,
     search_term: String,
     nameservers: Vec<String>,
 }
@@ -50,7 +50,7 @@ impl App {
             running: true,
             connections,
             table_state: TableState::default().with_selected(0),
-            mode: Mode::Main,
+            focus: Focus::Main,
             search_term: String::new(),
             nameservers: vec![],
         };
@@ -88,8 +88,8 @@ impl App {
         self.table_state.select(Some(new));
     }
 
-    pub fn mode(&self) -> &Mode {
-        &self.mode
+    pub fn focus(&self) -> &Focus {
+        &self.focus
     }
 
     pub fn selected(&self) -> Option<&Connection> {
@@ -135,7 +135,7 @@ impl App {
 
     /// Enable the yank (copy) menu
     pub fn yank_menu(&mut self) {
-        self.mode = Mode::Yank;
+        self.focus = Focus::Yank;
 
         if let Some(con) = self.selected() {
             let pubkey = con.pubkey();
@@ -148,10 +148,10 @@ impl App {
     // Switch to search mode
     pub fn search(&mut self, search: Option<&str>) {
         if let Some(term) = search {
-            self.mode = Mode::Search;
+            self.focus = Focus::Search;
             self.search_term = term.to_owned();
         } else {
-            self.mode = Mode::Main;
+            self.focus = Focus::Main;
         }
     }
 
@@ -180,12 +180,12 @@ impl Widget for &mut App {
                     .italic(),
             );
 
-        if self.mode == Mode::Search || !self.search_term.is_empty() {
+        if self.focus == Focus::Search || !self.search_term.is_empty() {
             border = border.title_bottom(
                 Line::from(format!(
                     "/{}{}",
                     self.search_term,
-                    if self.mode == Mode::Search { "█" } else { "" }
+                    if self.focus == Focus::Search { "█" } else { "" }
                 ))
                 .alignment(Alignment::Left),
             );

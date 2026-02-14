@@ -1,5 +1,5 @@
 #[derive(Default, PartialEq)]
-pub enum Mode {
+pub enum Focus {
     #[default]
     Main,
     Search,

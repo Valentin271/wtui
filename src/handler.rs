@@ -1,9 +1,9 @@
-use crate::app::{App, AppResult, mode::Mode};
+use crate::app::{App, AppResult, focus::Focus};
 use ratatui::crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 /// Handles the key events and updates the state of [`App`].
 pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
-    if let Mode::Search = app.mode() {
+    if let Focus::Search = app.focus() {
         handle_key_search(key_event, app);
         return Ok(());
     }
@@ -42,7 +42,9 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
 fn handle_key_search(key_event: KeyEvent, app: &mut App) {
     match (key_event.modifiers, key_event.code) {
         // Exit search mode
-        (_, KeyCode::Esc | KeyCode::Enter) | (KeyModifiers::CONTROL, KeyCode::Char('c')) => app.search(None),
+        (_, KeyCode::Esc | KeyCode::Enter) | (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
+            app.search(None)
+        }
         // Down
         (KeyModifiers::CONTROL, KeyCode::Char('j')) | (_, KeyCode::Down) => app.down(),
         // Up
