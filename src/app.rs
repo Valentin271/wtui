@@ -108,7 +108,9 @@ impl App {
 
     pub fn selected(&self) -> Option<&Connection> {
         self.connections
-            .get(self.table_state.selected().unwrap_or(0))
+            .iter()
+            .filter(|con| con.contains(&self.search))
+            .nth(self.table_state.selected().unwrap_or(0))
     }
 
     /// Update the cached nameserver.
